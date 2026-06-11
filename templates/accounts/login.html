@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Вхід{% endblock %}
+{% block content %}
+<div class="page-center">
+    <div class="card library-card shadow-lg" style="width:450px;">
+        <div class="card-body p-4 position-relative">
+            <a href="/" class="btn-close position-absolute top-0 end-0 m-3"></a>
+            <h2 class="text-center mb-4">Вхід</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <input type="text" name="username" class="form-control" placeholder="Логін">
+                </div>
+                <div class="mb-3">
+                    <input type="password" name="password" class="form-control" placeholder="Пароль">
+                </div>
+                <button type="submit" class="btn btn-main w-100">Увійти</button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{% url 'register' %}">Немає акаунту?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

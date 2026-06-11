@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Головна{% endblock %}
+{% block content %}
+<h1 class="mb-4">Ваша онлайн бібліотека</h1>
+<form method="GET" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q"class="form-control" placeholder="Пошук книги..." value="{{ query|default:'' }}">
+        <button class="btn btn-main" type="submit">Знайти</button>
+    </div>
+</form>
+<div class="mb-4">
+    <h4>Категорії</h4>
+    <a href="/" class="btn btn-light-brown btn-sm mb-2">Усі книги</a>
+    {% for category in categories %}
+        <a href="?category={{ category.id }}" class="btn btn-category btn-sm mb-2"> {{ category.name }}</a>
+    {% endfor %}
+</div>
+{% if user.is_staff %}
+    <a href="{% url 'add_book' %}" class="btn btn-main mb-3">Додати книгу</a>
+{% endif %}
+<h3 class="mb-3">Список книг</h3>
+{% if books %}
+    <div class="row">
+        {% for book in books %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card library-card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <div class="book-cover-container">
+                                {% if book.cover %}
+                                    <img src="{{ book.cover.url }}" class="book-cover" alt="{{ book.title }}">
+                                {% else %}
+                                    <div class="book-cover-placeholder"><small>Обкладинка тимчасово відсутня</small></div>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'book_detail' book.id %}" class="text-decoration-none"> {{ book.title }}</a>
+                        </h5>
+                        <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
+                        <p class="card-text"><strong>Категорія:</strong> {{ book.category }}</p>
+                        <p class="card-text"><strong>Рік:</strong> {{ book.publication_year }}</p>
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-main">Детальніше</a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'edit_book' book.id %}" class="btn btn-warning">Редагувати</a>
+                            <a href="{% url 'delete_book' book.id %}" class="btn btn-danger">Видалити</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-warning">Книг не знайдено.</div>
+{% endif %}
+{% endblock %}

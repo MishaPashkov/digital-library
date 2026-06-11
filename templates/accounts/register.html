@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Реєстрація
+{% endblock %}
+
+{% block content %}
+
+<div class="page-center">
+
+<div class="card library-card shadow-lg" style="width:500px;">
+
+<div class="card-body p-4 position-relative">
+
+<a href="/"
+   class="btn-close position-absolute top-0 end-0 m-3">
+</a>
+
+<h2 class="text-center mb-4">
+Реєстрація
+</h2>
+
+<form method="post" id="registerForm">
+
+{% csrf_token %}
+
+<div class="mb-3">
+<label class="form-label">Логін</label>
+{{ form.username }}
+<div id="username-error" class="small"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Пароль</label>
+{{ form.password1 }}
+<div id="pass1-error" class="small"></div>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Підтвердження пароля</label>
+{{ form.password2 }}
+<div id="pass2-error" class="small"></div>
+</div>
+
+<button type="submit"
+        class="btn btn-main w-100">
+
+Зареєструватися
+
+</button>
+
+</form>
+
+<div class="text-center mt-3">
+
+Вже є акаунт?
+
+<a href="{% url 'login' %}">
+Увійти
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+const password1 = document.querySelector("#id_password1");
+const password2 = document.querySelector("#id_password2");
+
+const pass1Error = document.querySelector("#pass1-error");
+const pass2Error = document.querySelector("#pass2-error");
+
+// перевірка під час друку
+function validatePasswords() {
+
+    const p1 = password1.value;
+    const p2 = password2.value;
+
+    pass1Error.innerHTML = "";
+    pass2Error.innerHTML = "";
+
+    // якщо нічого не введено
+    if (!p1 && !p2) return;
+
+    // перевірка збігу
+    if (p2.length > 0) {
+        if (p1 === p2) {
+            pass2Error.innerHTML = "✓ Паролі співпадають";
+            pass2Error.className = "text-success small";
+        } else {
+            pass2Error.innerHTML = "✗ Паролі не співпадають";
+            pass2Error.className = "text-danger small";
+        }
+    }
+
+    // базові правила пароля (як Django)
+    if (p1.length > 0) {
+    
+        if (p1.length < 8) {
+
+            pass1Error.innerHTML =
+                "Пароль має містити мінімум 8 символів";
+            pass1Error.className = "text-danger small";
+
+        }
+
+        else if (/^\d+$/.test(p1)) {
+
+            pass1Error.innerHTML =
+                "Пароль не може складатися лише з цифр";
+            pass1Error.className = "text-danger small";
+
+        }
+
+        else {
+            const commonPasswords = [
+                "qwertyuiop",
+                "qwertyuio",
+                "qwertyui",
+                "qwertyu",
+                "qwerty",
+                "12345678",
+                "123456789",
+                "password",
+                "password123",
+                "11111111"
+            ];
+
+            if (commonPasswords.includes(p1.toLowerCase())) {
+
+                pass1Error.innerHTML =
+                "Пароль занадто простий";
+
+                pass1Error.className = "text-danger small";
+
+                return;
+            }
+            const username = usernameInput.value.toLowerCase();
+            const password = p1.toLowerCase();
+
+            if (username.length >= 3) {
+
+                if (password.includes(username)) {
+
+                    pass1Error.innerHTML =
+                        "Пароль занадто схожий на логін";
+                        pass1Error.className = "text-danger small";
+
+                }
+
+                else {
+
+                    for (let i = 0; i <= username.length - 4; i++) {
+
+                        const part =
+                            username.substring(i, i + 4);
+
+                        if (password.includes(part)) {
+
+                            pass1Error.innerHTML =
+                                "Пароль занадто схожий на логін";
+                            pass1Error.className = "text-danger small";
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+}
+
+password1.addEventListener("input", validatePasswords);
+password2.addEventListener("input", validatePasswords);
+const usernameInput = document.querySelector("#id_username");
+const usernameError = document.querySelector("#username-error");
+
+let timeout = null;
+
+usernameInput.addEventListener("input", function () {
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+
+        const username = usernameInput.value;
+
+        if (username.length < 3) {
+            usernameError.innerHTML = "Логін занадто короткий";
+            usernameError.className = "text-danger small";
+            return;
+        }
+
+        fetch(`/accounts/check-username/?username=${username}`)
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.exists) {
+                    usernameError.innerHTML = "✗ Цей логін вже зайнятий";
+                    usernameError.className = "text-danger small";
+                } else {
+                    usernameError.innerHTML = "✓ Логін доступний";
+                    usernameError.className = "text-success small";
+                }
+
+            });
+
+    }, 400);
+
+});
+
+
+</script>
+
+{% endblock %}
