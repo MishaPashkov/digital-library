@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: digital-library
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn library_system.wsgi:application"
